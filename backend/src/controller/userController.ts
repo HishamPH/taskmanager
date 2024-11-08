@@ -28,6 +28,17 @@ class UserController {
     }
   }
 
+  async loginUser(req: Request, res: Response, next: NextFunction) {
+    try {
+      const userData = req.body;
+      const user = await this.userCase.loginUser(userData);
+      return res.status(user?.statusCode).json({ ...user });
+    } catch (err) {
+      console.log(err);
+      next(err);
+    }
+  }
+
   async logoutUser(req: Request, res: Response, next: NextFunction) {
     try {
       console.log("logout");

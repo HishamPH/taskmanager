@@ -1,6 +1,7 @@
 import User from "../entity/user";
 import IUserRepository from "./interfaces/IUserRepository";
 import IJwtToken from "./interfaces/IJwtToken";
+import ISocketIo from "./interfaces/ISocketIo";
 
 interface ResponseType {
   _id?: string;
@@ -17,16 +18,85 @@ interface ResponseType {
 class UserUseCase {
   private iUserRepository: IUserRepository;
   private iJwtToken: IJwtToken;
-  constructor(iUserRepository: IUserRepository, iJwtToken: IJwtToken) {
+  private iSocket: ISocketIo;
+  constructor(
+    iUserRepository: IUserRepository,
+    iJwtToken: IJwtToken,
+    iSocket: ISocketIo
+  ) {
     this.iUserRepository = iUserRepository;
     this.iJwtToken = iJwtToken;
+    this.iSocket = iSocket;
   }
 
   async createUser(user: User): Promise<ResponseType> {
     try {
+      const exist = await this.iUserRepository.findByEmail(user.email);
+      if (exist) {
+        return {
+          status: false,
+          statusCode: 409,
+          message: "user already exists",
+        };
+      }
+      const data = await this.iUserRepository.createUser(user);
+      if (!data) {
+        return {
+          statusCode: 500,
+          message: "error in creating user",
+        };
+      }
+      const { _id, name, email, tasks } = data;
+      const result = { _id, name, email, tasks };
+      const accessToken = await this.iJwtToken.SignInAccessToken({ id: _id });
+      const refreshToken = await this.iJwtToken.SignInRefreshToken({ id: _id });
       return {
         statusCode: 200,
         message: "User registered SuccessFully",
+        result,
+        accessToken,
+        refreshToken,
+      };
+    } catch (error) {
+      console.log(error);
+      return {
+        status: false,
+        statusCode: 500,
+        message: "Internal server Error",
+      };
+    }
+  }
+
+  async loginUser(user: User): Promise<ResponseType> {
+    try {
+      const exist = await this.iUserRepository.findByEmail(user.email);
+      if (!exist) {
+        return {
+          status: false,
+          statusCode: 409,
+          message: "user doesn't exist",
+        };
+      }
+      const isValid = await this.iUserRepository.loginUser(
+        exist.password,
+        user.password
+      );
+      if (!isValid) {
+        return {
+          statusCode: 401,
+          message: "Invalid credentials",
+        };
+      }
+      const { _id, name, email, tasks } = exist;
+      const result = { _id, name, email, tasks };
+      const accessToken = await this.iJwtToken.SignInAccessToken({ id: _id });
+      const refreshToken = await this.iJwtToken.SignInRefreshToken({ id: _id });
+      return {
+        statusCode: 200,
+        message: "Login successful",
+        result,
+        accessToken,
+        refreshToken,
       };
     } catch (error) {
       console.log(error);

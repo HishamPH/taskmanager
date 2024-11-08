@@ -1,6 +1,6 @@
-//import http from "http";
 import createServer from "./framework/config/server";
 import { connectDB } from "./framework/config/connectDB";
+import { server } from "./framework/services/socketIo";
 import { config } from "dotenv";
 config();
 const port = process.env.PORT;
@@ -8,9 +8,8 @@ const port = process.env.PORT;
 const startServer = async () => {
   try {
     await connectDB();
-    const app = await createServer();
-    //const server = http.createServer(app);
-    app?.listen(port, async () => {
+    await createServer();
+    server?.listen(port, async () => {
       console.log(`server is running at port ${port}`);
     });
   } catch (error) {

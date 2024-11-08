@@ -1,13 +1,11 @@
-import express, { Request, Response, NextFunction, Application } from "express";
+import express, { Request, Response, NextFunction } from "express";
 import cookieParser from "cookie-parser";
 import path from "path";
 import cors from "cors";
 import session from "express-session";
 import { EventEmitter } from "events";
-
 import userRouter from "../routes/userRouter";
-
-const app: Application = express();
+import { app } from "../services/socketIo";
 
 const createServer = async () => {
   try {

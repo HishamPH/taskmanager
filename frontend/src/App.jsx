@@ -1,9 +1,52 @@
-import { useState } from "react";
+import {
+  Route,
+  createBrowserRouter,
+  createRoutesFromElements,
+  RouterProvider,
+  Outlet,
+  Navigate,
+} from "react-router-dom";
+
+import Login from "./pages/Login";
+import SignUp from "./pages/SignUp";
+import Home from "./pages/Home";
+import { useSelector } from "react-redux";
+
+const PrivateRoute = () => {
+  const { userInfo } = useSelector((state) => state.user);
+  if (userInfo) {
+    return <Outlet />;
+  } else {
+    return <Navigate to="/" />;
+  }
+};
+
+const PublicRoute = () => {
+  const { userInfo } = useSelector((state) => state.user);
+  if (!userInfo) {
+    return <Outlet />;
+  } else {
+    return <Navigate to="/home" />;
+  }
+};
+
+const router = createBrowserRouter(
+  createRoutesFromElements(
+    <Route>
+      <Route element={<PublicRoute />}>
+        <Route index element={<Login />} />
+        <Route path="/signup" element={<SignUp />} />
+      </Route>
+
+      <Route element={<PrivateRoute />}>
+        <Route path="/home" element={<Home />} />
+      </Route>
+    </Route>
+  )
+);
 
 function App() {
-  const [count, setCount] = useState(0);
-
-  return <>Hello</>;
+  return <RouterProvider router={router} />;
 }
 
 export default App;

@@ -3,10 +3,15 @@ interface User {
   name: string;
   email: string;
   password: string;
-  pdfs: {
+  tasks: {
     name: string;
-    originalName: string;
-    url: string;
+    completed: boolean;
+    dueDate: Date;
+    description: string;
+    createAt: Date;
+    updateAt: Date;
   }[];
+  createdAt: Date;
+  updatedAt: Date;
 }
 export default User;

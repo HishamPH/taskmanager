@@ -1,5 +1,6 @@
 import { createContext, useState, useEffect, useContext } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { Success } from "../helper/popup";
 
 import { io } from "socket.io-client";
 
@@ -17,7 +18,6 @@ const useSocketContext = () => {
 const SocketProvider = ({ children }) => {
   const { userInfo } = useSelector((state) => state.user);
   const [socket, setSocket] = useState(null);
-  const dispatch = useDispatch();
   const isLoggedIn = userInfo ? true : false;
   useEffect(() => {
     if (userInfo) {
@@ -39,7 +39,6 @@ const SocketProvider = ({ children }) => {
       }
     }
   }, [isLoggedIn]);
-
   return (
     <SocketContext.Provider value={{ socket }}>
       {children}
