@@ -107,6 +107,87 @@ class UserUseCase {
       };
     }
   }
+
+  async getTasks(userId: string): Promise<ResponseType> {
+    try {
+      const result = await this.iUserRepository.getTasks(userId);
+      return {
+        statusCode: 200,
+        message: "Login successful",
+        result,
+      };
+    } catch (error) {
+      console.log(error);
+      return {
+        status: false,
+        statusCode: 500,
+        message: "Internal server Error",
+      };
+    }
+  }
+
+  async addTask(userId: string, task: any): Promise<ResponseType> {
+    try {
+      const result = await this.iUserRepository.addTask(userId, task);
+      await this.iSocket.updateTask(userId, result);
+      return {
+        statusCode: 200,
+        message: "Login successful",
+        result,
+      };
+    } catch (error) {
+      console.log(error);
+      return {
+        status: false,
+        statusCode: 500,
+        message: "Internal server Error",
+      };
+    }
+  }
+  async editTask(userId: string, task: any): Promise<ResponseType> {
+    try {
+      if (!task._id) {
+        console.log(task._id);
+        return {
+          status: false,
+          statusCode: 401,
+          message: "the task id is missing",
+        };
+      }
+      const result = await this.iUserRepository.editTask(userId, task);
+      await this.iSocket.updateTask(userId, result);
+      return {
+        statusCode: 200,
+        message: "Login successful",
+        result,
+      };
+    } catch (error) {
+      console.log(error);
+      return {
+        status: false,
+        statusCode: 500,
+        message: "Internal server Error",
+      };
+    }
+  }
+  async deleteTask(userId: string, taskId: string): Promise<ResponseType> {
+    try {
+      const result = await this.iUserRepository.deleteTask(userId, taskId);
+      await this.iSocket.updateTask(userId, result);
+      return {
+        statusCode: 200,
+        message: "Login successful",
+        result,
+      };
+    } catch (error) {
+      console.log(error);
+      return {
+        status: false,
+        statusCode: 500,
+        message: "Internal server Error",
+      };
+    }
+  }
 }
 
 export default UserUseCase;

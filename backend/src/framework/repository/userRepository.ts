@@ -35,17 +35,17 @@ class UserRepository implements IUserRepository {
     }
   }
 
-  async uploadFile(file: any, userId: string): Promise<any> {
+  async addTask(userId: string, task: any): Promise<any> {
     try {
       const result = await userModel.findByIdAndUpdate(
         userId,
         {
-          $push: { tasks: file },
+          $push: { tasks: task },
         },
         { new: true }
       );
       if (result) {
-        return result.tasks[result.tasks.length - 1];
+        return result.tasks;
       }
       return null;
     } catch (error) {
@@ -54,31 +54,52 @@ class UserRepository implements IUserRepository {
     }
   }
 
-  async getFiles(userId: string): Promise<any> {
+  async editTask(userId: string, task: any): Promise<any> {
     try {
-      const user = await userModel.findById(userId);
-      if (user) return user.tasks;
-      return null;
-    } catch (err) {
-      console.log(err);
+      const updatedUser = await userModel.findOneAndUpdate(
+        { _id: userId, "tasks._id": task._id }, // Find user and task by taskData._id
+        {
+          $set: { "tasks.$": task }, // Update the task with taskData, including _id
+        },
+        { new: true }
+      );
+
+      return updatedUser?.tasks;
+    } catch (error) {
+      console.log(error);
       return false;
     }
   }
 
-  async deleteFile(userId: string, pdfId: string): Promise<any> {
+  async deleteTask(userId: string, taskId: string): Promise<any> {
     try {
       const result = await userModel.findByIdAndUpdate(
         userId,
         {
-          $pull: { pdfs: { _id: pdfId } }, // Pull the PDF object with the specific pdfId
+          $pull: { tasks: { _id: taskId } },
         },
-        { new: true } // Return the updated document
+        { new: true }
       );
-
-      return result; //
-    } catch (err) {
-      console.log(err);
+      if (result) {
+        return result.tasks;
+      }
       return null;
+    } catch (error) {
+      console.log(error);
+      return false;
+    }
+  }
+
+  async getTasks(userId: string): Promise<any> {
+    try {
+      const result = await userModel.findById(userId);
+      if (result) {
+        return result.tasks;
+      }
+      return null;
+    } catch (error) {
+      console.log(error);
+      return false;
     }
   }
 }

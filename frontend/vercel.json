@@ -1,0 +1,11 @@
+{
+  "rewrites": [
+    {
+      "source": "/api/:path*", 
+      "destination": "https://taskmanager.waveelectronics.shop/:path*"
+    },{
+      "source": "/(.*)", 
+      "destination": "/index.html"
+    }
+  ]
+}

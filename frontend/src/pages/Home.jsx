@@ -1,89 +1,161 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
+import { Button, Card } from "@material-tailwind/react";
 import NavBar from "../components/NavBar";
 import { useSocketContext } from "../socket/SocketContext";
 import TaskCard from "../components/TaskCard";
+import TaskInput from "../components/TaskInput";
+import { Success, Failed } from "../helper/popup";
+import axiosInstance from "../api/axiosInterceptor";
 
-// const tasks = [
-//   {
-//     id: 1,
-//     title: "Finish report",
-//     description: "Complete the quarterly sales report",
-//     dueDate: new Date("2023-05-15T12:00:00"),
-//     completed: false,
-//   },
-//   {
-//     id: 2,
-//     title: "Schedule team meeting",
-//     description: "Gather the team to discuss project updates",
-//     dueDate: new Date("2023-05-18T14:30:00"),
-//     completed: true,
-//   },
-// ];
+import TaskCharts from "../components/TaskCharts";
+
+const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+const LoadingOverlay = ({ loading }) => {
+  return loading ? (
+    <div className="fixed inset-0 bg-gray-800 bg-opacity-50 flex items-center justify-center z-50">
+      <div className="animate-spin h-10 w-10 border-4 border-blue-500 border-t-transparent rounded-full"></div>
+    </div>
+  ) : null;
+};
 
 const Home = () => {
-  const [tasks, setTasks] = useState([
-    {
-      id: 1,
-      title: "Complete project",
-      description: "Finish the React project by Friday",
-      completed: false,
-    },
-    {
-      id: 2,
-      title: "Go grocery shopping",
-      description: "Buy fruits, vegetables, and milk",
-      completed: true,
-    },
-  ]);
+  const { socket } = useSocketContext();
+  const [loading, setLoading] = useState(false);
+  const [open, setOpen] = useState(false);
+  const [task, setTask] = useState(null);
+  const [tasks, setTasks] = useState([]);
 
-  const handleDelete = (id) => {
-    setTasks(tasks.filter((task) => task.id !== id));
+  const handleSocketUpdate = (data) => {
+    setTasks(data);
   };
 
-  const handleUpdate = (id, newTitle, newDescription) => {
-    setTasks(
-      tasks.map((task) =>
-        task.id === id
-          ? { ...task, title: newTitle, description: newDescription }
-          : task
-      )
-    );
+  useEffect(() => {
+    if (socket) {
+      socket.on("updateTask", handleSocketUpdate);
+      return () => socket.off(handleSocketUpdate);
+    }
+  }, [socket]);
+
+  useEffect(() => {
+    const getTasks = async () => {
+      try {
+        setLoading(true);
+        const res = await axiosInstance.get("/user/get-tasks");
+        setTasks(res.data.result);
+      } catch (err) {
+        Failed(err.response ? err.response.data.message : err.message);
+        console.log(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+    getTasks();
+  }, []);
+
+  const handleDelete = async (id) => {
+    try {
+      setLoading(true);
+      const res = await axiosInstance.delete(`/user/delete-task/${id}`);
+    } catch (err) {
+      Failed(err.response ? err.response.data.message : err.message);
+      console.log(err.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleToggleComplete = (id) => {
-    setTasks(
-      tasks.map((task) =>
-        task.id === id ? { ...task, completed: !task.completed } : task
-      )
-    );
+  const handleUpdate = (data) => {
+    setTask(data);
+    setOpen(true);
+  };
+
+  const handleToggleComplete = async (id) => {
+    try {
+      setLoading(true);
+      const task = tasks.find((task) => task._id === id);
+      task.completed = !task.completed;
+
+      const res = await axiosInstance.post("/user/edit-task", task, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+    } catch (err) {
+      Failed(err.response ? err.response.data.message : err.message);
+      console.log(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSubmit = async (task, edit) => {
+    try {
+      setLoading(true);
+
+      console.log(edit);
+      let path;
+      if (edit) {
+        path = "edit-task";
+      } else {
+        path = "add-task";
+      }
+      const res = await axiosInstance.post(`/user/${path}`, task, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+    } catch (err) {
+      Failed(err.response ? err.response.data.message : err.message);
+      console.log(err.message);
+    } finally {
+      setLoading(false);
+      setTask(null);
+    }
+  };
+
+  const handleCreate = async () => {
+    setTask(null);
+    setOpen(true);
+  };
+
+  const handleClose = async () => {
+    setOpen(false);
   };
 
   return (
     <>
+      <LoadingOverlay loading={loading} />
       <NavBar />
-      <div>
-        {tasks.map((task) => (
-          <TaskCard
-            key={task.id}
-            {...task}
-            onDelete={handleDelete}
-            onUpdate={handleUpdate}
-            onToggleComplete={handleToggleComplete}
-          />
-        ))}
+      <div className="xl:flex m-2">
+        <Card className="xl:w-7/12 w-full m-3 bg-gray-50">
+          <Button onClick={handleCreate} className="w-fit m-6 rounded-sm">
+            +add task
+          </Button>
+          <div className="grid md:grid-cols-2">
+            {tasks.map((task) => (
+              <TaskCard
+                key={task._id}
+                {...task}
+                onDelete={handleDelete}
+                onUpdate={handleUpdate}
+                onToggleComplete={handleToggleComplete}
+              />
+            ))}
+          </div>
+        </Card>
+        <TaskCharts tasks={tasks} />
       </div>
+
+      <TaskInput
+        open={open}
+        setOpen={setOpen}
+        task={task}
+        handleClose={handleClose}
+        onSubmit={handleSubmit}
+      />
     </>
   );
 };
 
 export default Home;
-{
-  /* <div className="p-8">
-  <h1 className="text-2xl font-bold mb-4">My Tasks</h1>
-  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-    {tasks.map((task) => (
-      <TaskCard key={task.id} task={task} />
-    ))}
-  </div>
-</div>; */
-}

@@ -3,29 +3,25 @@ import bcrypt from "bcryptjs";
 
 import User from "../../entity/user";
 
-const taskSchema = new Schema(
-  {
-    name: {
-      type: String,
-      required: true, // You can decide if this should be required
-    },
-    completed: {
-      type: Boolean,
-      required: true,
-    },
-    dueDate: {
-      type: Date,
-      required: true,
-    },
-    description: {
-      type: String,
-      required: false,
-    },
+const taskSchema = new Schema({
+  name: {
+    type: String,
+    required: true, // You can decide if this should be required
   },
-  {
-    timestamps: true,
-  }
-);
+  completed: {
+    type: Boolean,
+    default: false,
+    required: true,
+  },
+  dueDate: {
+    type: Date,
+    required: true,
+  },
+  description: {
+    type: String,
+    required: false,
+  },
+});
 
 const userSchema: Schema<User> = new mongoose.Schema(
   {

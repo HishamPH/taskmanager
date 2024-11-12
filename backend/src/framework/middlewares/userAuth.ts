@@ -27,9 +27,6 @@ export const userAuth = async (
   res: Response,
   next: NextFunction
 ) => {
-  // const authHeader = req.headers["authorization"];
-  // const bearerToken = authHeader && authHeader.split(" ")[1];
-
   try {
     const accessToken = req.cookies.accessToken;
     const decoded = jwt.verify(

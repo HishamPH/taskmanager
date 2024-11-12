@@ -1,3 +1,3 @@
 export default interface ISocketIo {
-  updateTask(userId: string): Promise<any>;
+  updateTask(userId: string, task: any): Promise<any>;
 }

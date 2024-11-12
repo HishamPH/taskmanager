@@ -4,6 +4,7 @@ interface User {
   email: string;
   password: string;
   tasks: {
+    _id: string;
     name: string;
     completed: boolean;
     dueDate: Date;
