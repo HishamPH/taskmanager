@@ -11,15 +11,15 @@ const generateRandomData = () => ({
 const COLORS = ["#00C49F", "#0088FE", "#FF4D4D"];
 
 const TaskCharts = ({ tasks }) => {
-  const total = tasks.length;
-  const pending = tasks.reduce((acc, item) => {
+  const total = tasks?.length;
+  const pending = tasks?.reduce((acc, item) => {
     if (!item.completed) {
       acc++;
     }
     return acc;
   }, 0);
   const completed = total - pending;
-  const overdue = tasks.reduce((acc, item) => {
+  const overdue = tasks?.reduce((acc, item) => {
     const dueDate = new Date(item.dueDate).getTime();
     const currentDate = new Date().getTime();
     if (dueDate <= currentDate && !item.completed) {

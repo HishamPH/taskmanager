@@ -11,6 +11,7 @@ import Login from "./pages/Login";
 import SignUp from "./pages/SignUp";
 import Home from "./pages/Home";
 import { useSelector } from "react-redux";
+import "./App.css";
 
 const PrivateRoute = () => {
   const { userInfo } = useSelector((state) => state.user);
