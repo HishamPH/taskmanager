@@ -132,7 +132,7 @@ const Home = () => {
           <Button onClick={handleCreate} className="w-fit m-6 rounded-sm">
             +add task
           </Button>
-          <div className="grid md:grid-cols-2 overflow-y-scroll h-[600px]">
+          <div className="grid md:grid-cols-2 overflow-y-auto h-[600px]">
             {tasks?.map((task) => (
               <TaskCard
                 key={task._id}

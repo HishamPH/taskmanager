@@ -48,7 +48,7 @@ export default function TaskCard({
     : "bg-blue-50 border-blue-200";
 
   return (
-    <Card className={`w-md m-4 ${cardColors}`}>
+    <Card className={`w-md m-4 ${cardColors} h-fit`}>
       <CardBody>
         <div className="flex items-center justify-between mb-4">
           <Typography
