@@ -1,4 +1,4 @@
-# PDFUploader
+# TaskManager
 
 ## Overview
 
@@ -18,7 +18,6 @@ The source code is available on GitHub: [https://github.com/HishamPH/taskmanager
 
 - Register with email and password
 - Login functionality
-- Password reset option
 
 ### 2. Task Management
 
@@ -33,7 +32,7 @@ The source code is available on GitHub: [https://github.com/HishamPH/taskmanager
 
 ## Technologies Used
 
-- **Backend:** Node.js, Express, TypeScript
+- **Backend:** Node.js, Express, TypeScript,Socket.Io
 - **Frontend:** React, Vite
 - **Database:** MongoDB
 - **Deployment:** Vercel, AWS
